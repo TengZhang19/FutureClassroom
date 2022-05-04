@@ -160,7 +160,7 @@ export function updateAudioNodes(scene) {
     }
 }
 
-function playAudio() {
+export function playAudio() {
     if (audioContext.state == 'running')
         return;
 
@@ -224,8 +224,14 @@ export function updateAudioSources(frame, refSpace) {
     }
 }
 
-export function loadAudioSources(scene) {
+export function loadAudioSources() {
     Promise.all([
+        createAudioSource({
+            url: '/media/sound/REANIMATE.mp3',
+            position: [0, DEFAULT_HEIGHT, -1],
+            rotateY: 0
+        }),
+        /*
         createAudioSource({
             url: 'media/sound/guitar.ogg',
             position: [0, DEFAULT_HEIGHT, -1],
@@ -241,6 +247,7 @@ export function loadAudioSources(scene) {
             position: [1, DEFAULT_HEIGHT, 0],
             rotateY: Math.PI * -0.5
         }),
+        */
     ]).then((sources) => {
         audioSources = sources;
 

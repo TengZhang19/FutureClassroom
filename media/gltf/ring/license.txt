@@ -1,0 +1,11 @@
+Model Information:
+* title:	Moebius_Inktober_Ring
+* source:	https://sketchfab.com/3d-models/moebius-inktober-ring-64934db5eaec4b158a7b8bf1dd3e3923
+* author:	Adrien Munoz-Pascal (https://sketchfab.com/Audiophobia)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Moebius_Inktober_Ring" (https://sketchfab.com/3d-models/moebius-inktober-ring-64934db5eaec4b158a7b8bf1dd3e3923) by Adrien Munoz-Pascal (https://sketchfab.com/Audiophobia) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

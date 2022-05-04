@@ -3172,9 +3172,17 @@ function Node(_form) {
       return this; 
    }
 
-   this.hud = () => {
+   this.hud = flag => {
       this._isHUD = true;
-      this.setMatrix(this.viewMatrix()).move(0,0,-1).turnY(Math.PI);
+      let currentViewMatrix = this.viewMatrix();
+      currentViewMatrix[12] = currentViewMatrix[12];
+      if(flag){
+         currentViewMatrix[13] = currentViewMatrix[13]+0.5;
+      }
+      else{
+         currentViewMatrix[13] = currentViewMatrix[13]-0.5;
+      }
+      this.setMatrix(currentViewMatrix).move(0,0,-1).turnY(Math.PI);
       return this;
    }
    this.audio = src => {return this;}
