@@ -8,7 +8,7 @@ export function setSketchObjectSync() {
             var dataInfo = { "k": "v" }
             var msg = corelink_message("sketchobject", dataInfo);
             corelink.send(metaroomSyncSender, msg);
-            console.log("corelink.send", msg);
+            //console.log("corelink.send", msg);
         }
     }, 100);
 }
@@ -22,6 +22,6 @@ export function setEventSketchObjectHandler() {
         }
         // to Ken: handle incoming object
         var newSketchObject = json["state"];
-        console.log("incoming newSketchObject", newSketchObject);
+        //console.log("incoming newSketchObject", newSketchObject);
     });
 }

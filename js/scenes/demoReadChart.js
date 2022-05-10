@@ -20,7 +20,7 @@ class Object{
 let d3 = (a,b) => { 
     let x = b[0] - a[0], 
         y = b[1] - a[1],
-        z = b[1] - a[1]; 
+        z = b[2] - a[2]; 
     return Math.sqrt(x*x + y*y + z*z);
  } 
 
@@ -51,6 +51,7 @@ export const init = async model => {
     let label=model.add();
     label.add('label').move(-0,1,1).scale(.05);
     label.add('label').move(-0,0.85,1).scale(.05);
+    label.add('label').move(-0,0.5,1).scale(.05);
 
     let hpLabel = model.add();
     hpLabel.add('label');
@@ -65,14 +66,24 @@ export const init = async model => {
     comboLabel.color([0,0,1]);
     comboLabel.child(0).info('Combo: 0');
 
-    let audio = new Audio("/media/sound/REANIMATE.mp3");
+    let audio = new Audio("/media/sound/Chasers - Lost.mp3");
     let hitsound_ = new Audio("/media/sound/drum-hitnormal69.m4a");
     //let hitsound = model.add('cube').add().audio("/media/sound/drum-hitnormal69.m4a");
-    
+    let hitsoundPlayingTime=0;
+    let playing=false;
     let hp=100;
     //positionalaudio.loadAudioSources();
     //positionalaudio.playAudio();
     model.animate(() => {
+        label.child(2).info('LeftHand'+videoHandTracker.getJointMatrix('left',0,0));
+        if(playing){
+            hitsoundPlayingTime+=1;
+            if(hitsoundPlayingTime>6){
+                playing=false;
+                positionalaudio.pauseAudio();
+            }
+        }
+        
         
         hpLabel.hud(true).scale(.05);
         comboLabel.hud(false).scale(.05);
@@ -84,20 +95,21 @@ export const init = async model => {
         if(currentTime>6000-offset){
             audio.play();
         }
-        console.log("Objects number: "+objects.length);
+        //console.log("Objects number: "+objects.length);
         if(objects.length>0 && objects[0][1]*timePerBar+3000<currentTime){
 
             var objectType=objects[0][0]; // 0:tap, 1:hold, 2:slide
             if(objectType==0){
                 let object = new Object(0,objects[0][1],1,(objects[0][2]-50)/150,1.5+(objects[0][3]-50)/150,objectAppearPosition,new Gltf2Node({ url: './media/gltf/tap/scene.gltf' }));
                 global.gltfRoot.addNode(object.gltfModel);
-                object.gltfModel._scale=[0.1,0.1,0.1];
-                object.gltfModel.translation=[object.position1,object.position2,objectAppearPosition];object
-                
+                object.gltfModel._scale=[0.075,0.075,0.075];
+                object.gltfModel.translation=[object.position1,object.position2,objectAppearPosition];
+                console.log("OBJECT tIME:" + (objects[0][1]*timePerBar+3000) + " " + 3000);
+                console.log("object location:"  + object.position1 + object.position2);
                 currentObjects.push(object);
             }
             else if(objectType==1){
-                let object = new Object(1,objects[0][1],objects[0][2],0,2.4,objectAppearPosition,new Gltf2Node({ url: './media/gltf/ring/scene.gltf' }));
+                let object = new Object(1,objects[0][1],objects[0][2],0,2.8,objectAppearPosition,new Gltf2Node({ url: './media/gltf/ring/scene.gltf' }));
                 global.gltfRoot.addNode(object.gltfModel);
                 object.gltfModel._scale=[0.2*object.size,0.2*object.size,0.2*object.size];
                 object.gltfModel.translation=[object.position1,object.position2,objectAppearPosition];
@@ -120,9 +132,9 @@ export const init = async model => {
             }
             //currentObjects.push(objects[0]);
             //currentPositions.push(3);
-            console.log("AddObject at time: "+currentTime+" and current number of objects is: "+currentObjects.length);
-            console.log("current object time in file is:"+objects[0][1]);
-            console.log("calculated object time is:" + (objects[0][1]*timePerBar+offset));
+            //console.log("AddObject at time: "+currentTime+" and current number of objects is: "+currentObjects.length);
+            //console.log("current object time in file is:"+objects[0][1]);
+            //console.log("calculated object time is:" + (objects[0][1]*timePerBar+offset));
             objects.shift();
         }
 
@@ -130,27 +142,29 @@ export const init = async model => {
             //currentPositions[i]=currentPositions[i]-0.05*currentTime;
             currentObjects[i].position3=currentObjects[i].position3-0.002*time_gap;
             currentObjects[i].gltfModel.translation=[currentObjects[i].position1,currentObjects[i].position2,currentObjects[i].position3];
-            console.log("current number of moving object: " + currentObjects.length);
-            console.log("object: " + currentObjects[i].position1 +"; "+ currentObjects[i].position2 +"; " + currentObjects[i].position3);
+            //console.log("current number of moving object: " + currentObjects.length);
+            //console.log("object: " + currentObjects[i].position1 +"; "+ currentObjects[i].position2 +"; " + currentObjects[i].position3);
             
             if(currentObjects[i].position3<0){
                 if(currentObjects[i].type==0){
                     //position of left hand
-                    let leftHand = videoHandTracker.getJointMatrix('left',0,0).slice(12,15);
+                    let leftHand = videoHandTracker.getJointMatrix('left',1,4).slice(12,15);
                     //distance between the object and left hand
                     let leftDistance = d3(leftHand,[currentObjects[i].position1,currentObjects[i].position2,currentObjects[i].position3]);
-                    console.log("hand: " + leftHand + leftDistance);
+                    //console.log("hand: " + leftHand + leftDistance);
                     
-                    label.child(0).info('left distance: '+leftDistance);
+                    label.child(0).info('left distance: '+leftDistance + " " + leftHand[0]+ " "  + leftHand[1]+ " "  + leftHand[2]);
                     //if they are close enough, count as hit
-                    if(leftDistance<2.5){
+                    if(leftDistance<2){
                         global.gltfRoot.removeNode(currentObjects[i].gltfModel);
                         delete currentObjects.gltfModel;
                         currentObjects.splice(i,1);
                         //hitsound
-                        //hitsound.identity().move(currentObjects[i].position1,currentObjects[i].position2,currentObjects[i].position3).scale(0.00001);
-                        //hitsound.child(0).playAudio();
-                        hitsound_.play();
+                        //hitsound_.play();
+                        positionalaudio.playAudio([currentObjects[i].position1,currentObjects[i].position2,currentObjects[i].position3]);
+                        hitsoundPlayingTime=0;
+                        playing=true;
+                        //console.log("positionalaudio.audioSources: "+ positionalaudio.audioSources);
                         //combo
                         combo=combo+1;
                         comboLabel.child(0).info('Combo: '+combo);
@@ -158,19 +172,21 @@ export const init = async model => {
                     }
 
                     //position of right hand
-                    let rightHand = videoHandTracker.getJointMatrix('right',0,0).slice(12,15);
+                    let rightHand = videoHandTracker.getJointMatrix('right',1,4).slice(12,15);
                     
                     //distance between object and right hand
-                    let rightDistance = d3(rightHand,[currentObjects[i].position1,currentObjects[i].position2,currentObjects[i].position3]);
-                    label.child(1).info('right distance: '+rightDistance);
-                    if(rightDistance<2.5){
+                    let rightDistance = d3(rightHand,[currentObjects[i].position2,currentObjects[i].position1,currentObjects[i].position3]);
+                    label.child(1).info('right distance: '+rightDistance + " " + rightHand[0]+ " "  + rightHand[1]+ " "  + rightHand[2]);
+                    if(rightDistance<2){
                         global.gltfRoot.removeNode(currentObjects[i].gltfModel);
                         delete currentObjects.gltfModel;
                         currentObjects.splice(i,1);
                         //hitsound
-                        //hitsound.identity().move(currentObjects[i].position1,currentObjects[i].position2,currentObjects[i].position3).scale(0.00001);
-                        //hitsound.child(0).playAudio();
-                        hitsound_.play();
+                        //hitsound_.play();
+                        positionalaudio.playAudio([currentObjects[i].position1,currentObjects[i].position2,currentObjects[i].position3]);
+                        hitsoundPlayingTime=0;
+                        playing=true;
+                        //console.log("positionalaudio.audioSources: "+ positionalaudio.audioSources);
                         //combo
                         combo=combo+1;
                         comboLabel.child(0).info('Combo: '+combo);
@@ -202,7 +218,21 @@ export const init = async model => {
                 //combo
                 combo=0;
                 comboLabel.child(0).info('Combo: '+combo);
+
+                if(hp==0){
+                    let gameOverLabel = model.add();
+                    gameOverLabel.add('label');
+                    gameOverLabel.flag('uTransparentTexture', 1);
+                    gameOverLabel.color([1,0,0]);
+                    gameOverLabel.child(0).info('Game Over');
+                    gameOverLabel.scale(.2).move(0,0,-2);
+                    audio.pause();
+                    global.scene().endFrame();
+                }
+                
                 continue;
+
+                
             }
             i++;
         }

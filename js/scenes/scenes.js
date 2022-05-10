@@ -11,8 +11,6 @@ export default () => {
    return {
       enableSceneReloading: true,
       scenes: [
-         { name: "demoObjects", path: "./demoObjects.js"},
-         { name: "demoRhythmGame", path: "./demoRhythmGame.js"},
          { name: "demoReadChart", path: "./demoReadChart.js"},
       ]
    };
